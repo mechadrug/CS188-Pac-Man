@@ -188,20 +188,20 @@ def eliminateWithCallTracking(callTrackingList=None):
         Conditioned_var=set().union(*setsOfConditioned)
         setsOfremoved = [set([eliminationVariable])]
         removed_var=set().union(*setsOfremoved)
-        print(removed_var)
+        #print(removed_var)
         Conditioned_var -= removed_var#集合操作
         Unconditioned_var -= removed_var
         domains={}
         domains2={}
         domains.update(factor.variableDomainsDict())
         domains2.update(factor.variableDomainsDict())
-        print(domains)
+        #print(domains)
         del domains[eliminationVariable]
-        print(domains) #已经得到了新的newfactor,现在要让它的概率值符合删除后的值
-        print(f"factor variables: {factor.unconditionedVariables()} {factor.conditionedVariables()}")
-        print(f"this: {Unconditioned_var} {Conditioned_var}")
+        #print(domains) #已经得到了新的newfactor,现在要让它的概率值符合删除后的值
+        #print(f"factor variables: {factor.unconditionedVariables()} {factor.conditionedVariables()}")
+        #print(f"this: {Unconditioned_var} {Conditioned_var}")
         new_factor=Factor(Unconditioned_var,Conditioned_var,domains)
-        print('er')
+        #print('er')
         all_possible_assignments=new_factor.getAllPossibleAssignmentDicts()
         #print(f"new_factor variables: {new_factor.unconditionedVariables()} {new_factor.conditionedVariables()}")
         for i in all_possible_assignments:#对于每一个可能的变量赋值组合
@@ -209,7 +209,7 @@ def eliminateWithCallTracking(callTrackingList=None):
             #这和第二题相乘的逻辑不一样,应要对于eliminationvariable的每一个取值,去计算当前这个赋值组合的概率情况并将其相加
             factor_vars = set(new_factor.unconditionedVariables()) | set(new_factor.conditionedVariables())#所有变量合并,存在就加进来
             filters={k:v for k,v in i.items()if k in factor_vars}#i.item()返回所有键值对
-            print('error')
+            #print('error')
             for value in domains2[eliminationVariable]:
                 fake_filters=filters.copy()
                 fake_filters[eliminationVariable]=value
