@@ -69,6 +69,12 @@ class RegressionModel(object):
     def __init__(self):
         # Initialize your model parameters here
         "*** YOUR CODE HERE ***"
+        self.w1=nn.Parameter(1,64)
+        self.w2=nn.Parameter(64,8)
+        self.w3=nn.Parameter(8,1)
+        self.b1=nn.Parameter(1,64)
+        self.b2=nn.Parameter(1,8)
+        self.b3=nn.Parameter(1,1)
 
     def run(self, x):
         """
@@ -80,7 +86,25 @@ class RegressionModel(object):
             A node with shape (batch_size x 1) containing predicted y-values
         """
         "*** YOUR CODE HERE ***"
-
+        #x:m*1,则对应的参数self.w应该是1*n,最终应该返回一个m*1的y,y和x的格式相同
+        #h1=f1(x)=f1(x*self.w1+b1)=[x.x,self.w1.y]
+        #h2=f2(h1)=f2(h1*self.w2+b2)=[h1.x,self.w1.y]
+        #y^=f3(h2)=h2*self.w3+b3=[h2.x,self.w3.y]
+        #x:32*1
+        #self.w1:1*64
+        #h1:32*64
+        #self.w2:64*8?1?4?
+        #h2:32*8
+        #self.w3:8*1
+        #h3:32*1=y^
+        #返回模型预测,用到:
+        #nn.ReLU->f
+        #nn.Linear(x,t)->*
+        #nn.AddBias->+
+        h1=nn.ReLU(nn.AddBias(nn.Linear(x,self.w1),self.b1))
+        h2=nn.ReLU(nn.AddBias(nn.Linear(h1,self.w2),self.b2))
+        h3=nn.AddBias(nn.Linear(h2,self.w3),self.b3)
+        return h3
     def get_loss(self, x, y):
         """
         Computes the loss for a batch of examples.
@@ -92,12 +116,32 @@ class RegressionModel(object):
         Returns: a loss node
         """
         "*** YOUR CODE HERE ***"
+        #nn.SquareLoss 返回y和y^的差值
+        return nn.SquareLoss(self.run(x),y)
 
     def train(self, dataset):
         """
         Trains the model.
         """
         "*** YOUR CODE HERE ***"
+        batchsize=20
+        loss=float('inf')
+        while loss>=0.01:
+            for x,y in dataset.iterate_once(batchsize):
+                lossX=self.get_loss(x,y)
+                loss=nn.as_scalar(lossX)
+                print(loss)
+                s=[self.w1,self.w2,self.w3,self.b1,self.b2,self.b3]
+                t=nn.gradients(lossX,s)
+                for i in range(len(s)):
+                    s[i].update(t[i],-0.001)
+                
+
+        #当差值大于0.01就继续训练
+        #训练过程:计算训练损失;self.get_loss
+        #获取损失梯度;nn.gradients
+        #对每一个参数基于梯度进行更新对于参数i调用i.update(i梯度,学习率)
+
 
 class DigitClassificationModel(object):
     """
