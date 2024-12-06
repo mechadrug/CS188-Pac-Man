@@ -160,6 +160,12 @@ class DigitClassificationModel(object):
     def __init__(self):
         # Initialize your model parameters here
         "*** YOUR CODE HERE ***"
+        self.w1=nn.Parameter(784,128)
+        self.w2=nn.Parameter(128,32)
+        self.w3=nn.Parameter(32,10)
+        self.b1=nn.Parameter(1,128)
+        self.b2=nn.Parameter(1,32)
+        self.b3=nn.Parameter(1,10)
 
     def run(self, x):
         """
@@ -176,6 +182,10 @@ class DigitClassificationModel(object):
                 (also called logits)
         """
         "*** YOUR CODE HERE ***"
+        h1=nn.ReLU(nn.AddBias(nn.Linear(x,self.w1),self.b1))
+        h2=nn.ReLU(nn.AddBias(nn.Linear(h1,self.w2),self.b2))
+        h3=nn.AddBias(nn.Linear(h2,self.w3),self.b3)
+        return h3
 
     def get_loss(self, x, y):
         """
@@ -191,12 +201,33 @@ class DigitClassificationModel(object):
         Returns: a loss node
         """
         "*** YOUR CODE HERE ***"
+        return nn.SoftmaxLoss(self.run(x),y)
+
 
     def train(self, dataset):
         """
         Trains the model.
         """
         "*** YOUR CODE HERE ***"
+        batchsize=100
+        best_val_accuracy=0
+        race=0.1
+        loss=float('inf')
+        while best_val_accuracy<=0.98:
+            for x,y in dataset.iterate_once(batchsize):
+                lossX=self.get_loss(x,y)
+                loss=nn.as_scalar(lossX)
+                print(loss)
+                s=[self.w1,self.w2,self.w3,self.b1,self.b2,self.b3]
+                t=nn.gradients(lossX,s)
+                for i in range(len(s)):
+                    s[i].update(t[i],-race)
+            best_val_accuracy=dataset.get_validation_accuracy()
+            
+
+            
+
+
 
 class LanguageIDModel(object):
     """
